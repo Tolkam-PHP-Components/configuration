@@ -1,0 +1,20 @@
+{
+    "name": "tolkam/configuration",
+    "description": "Simple configuration container",
+    "type": "library",
+    "license": "proprietary",
+    "autoload": {
+        "psr-4": {
+            "Tolkam\\Configuration\\": "src"
+        }
+    },
+    "require": {
+        "php": ">=7.4",
+        "tolkam/utils": "^1.0@dev"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        }
+    }
+}
