@@ -34,13 +34,18 @@ class Configuration implements ConfigurationInterface
     /**
      * @inheritDoc
      */
-    public function get(string $path, $default = null, string $separator = '.')
+    public function get(string $path = null, $default = null, string $separator = '.')
     {
         $found = $this->data;
+        
+        if ($path === null || $path === '') {
+            return $found;
+        }
+        
         $segments = explode($separator, $path);
         
         while ($segment = array_shift($segments)) {
-            if (array_key_exists($segment, $found)) {
+            if (isset($found[$segment]) || array_key_exists($segment, $found)) {
                 $found = $found[$segment];
             } else {
                 if (!!$this->options['strict']) {
