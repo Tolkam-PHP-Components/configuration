@@ -3,6 +3,7 @@
 namespace Tolkam\Configuration;
 
 use ArrayIterator;
+use Closure;
 
 class Configuration implements ConfigurationInterface
 {
@@ -17,6 +18,9 @@ class Configuration implements ConfigurationInterface
     private array $options = [
         // throw on invalid paths
         'strict' => true,
+        
+        // resolve, if found value is instance of Closure
+        'resolveClosures' => true,
     ];
     
     /**
@@ -47,13 +51,19 @@ class Configuration implements ConfigurationInterface
         while ($segment = array_shift($segments)) {
             if (isset($found[$segment]) || array_key_exists($segment, $found)) {
                 $found = $found[$segment];
-            } else {
+                
+                if (!!$this->options['resolveClosures'] && $found instanceof Closure) {
+                    $found = $found();
+                }
+            }
+            else {
                 if (!!$this->options['strict']) {
                     throw new ConfigurationException(sprintf(
                         'Unknown configuration path "%s"',
                         $path
                     ));
-                } else {
+                }
+                else {
                     return $default;
                 }
             }
