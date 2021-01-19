@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Tolkam\Configuration;
+namespace Tolkam\Configuration\Provider;
 
 use Generator;
 use RuntimeException;
 
-class Aggregator implements ConfigurationsAggregatorInterface
+class AggregateProvider
 {
     /**
      * @var callable[]
@@ -20,10 +20,7 @@ class Aggregator implements ConfigurationsAggregatorInterface
         $this->providers = $providers;
     }
     
-    /**
-     * @inheritDoc
-     */
-    public function aggregate()
+    public function __invoke(): array
     {
         return $this->mergeFromCallables($this->providers);
     }
@@ -35,7 +32,7 @@ class Aggregator implements ConfigurationsAggregatorInterface
      *
      * @return array
      */
-    protected function mergeFromCallables(array $callables)
+    protected function mergeFromCallables(array $callables): array
     {
         $merged = [];
         
@@ -46,7 +43,8 @@ class Aggregator implements ConfigurationsAggregatorInterface
                     $this->assertArray($a, $callable);
                     $this->merge($merged, $a);
                 }
-            } else {
+            }
+            else {
                 $this->assertArray($arr, $callable);
                 $this->merge($merged, $arr);
             }
@@ -71,7 +69,8 @@ class Aggregator implements ConfigurationsAggregatorInterface
         foreach ($source as $key => &$value) {
             if (is_array($value) && isset($target[$key]) && is_array($target[$key])) {
                 $this->merge($target[$key], $value);
-            } else {
+            }
+            else {
                 $target[$key] = $value;
             }
         }
@@ -87,7 +86,7 @@ class Aggregator implements ConfigurationsAggregatorInterface
     {
         if (!is_array($value)) {
             throw new RuntimeException(sprintf(
-                'Array provider "%s" must return an array, %s returned',
+                'Configuration provider "%s" must return an array, %s returned',
                 is_object($source) ? addslashes(get_class($source)) : gettype($source),
                 gettype($value),
             ));

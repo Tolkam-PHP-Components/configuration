@@ -4,13 +4,14 @@ namespace Tolkam\Configuration;
 
 use ArrayIterator;
 use Closure;
+use Tolkam\Utils\Arr;
 
 class Configuration implements ConfigurationInterface
 {
     /**
      * @var array
      */
-    private array $data = [];
+    private array $data;
     
     /**
      * @var array
@@ -19,28 +20,42 @@ class Configuration implements ConfigurationInterface
         // throw on invalid paths
         'strict' => true,
         
+        // read-only mode
+        'readOnly' => true,
+        
         // resolve, if found value is instance of Closure
         'resolveClosures' => true,
+        
+        'pathSeparator' => '.',
     ];
     
     /**
-     * @param ConfigurationsAggregatorInterface $aggregator
-     * @param array                             $options
+     * @param callable $provider
+     * @param array    $options
      */
     public function __construct(
-        ConfigurationsAggregatorInterface $aggregator,
+        callable $provider,
         array $options = []
     ) {
-        $this->data = $aggregator->aggregate();
+        $this->data = $provider();
+        
+        if (!is_array($this->data)) {
+            throw new ConfigurationException(sprintf(
+                'Data provider must return array, %s returned',
+                is_object($provider) ? addslashes(get_class($provider)) : gettype($provider),
+            ));
+        }
+        
         $this->options = array_merge($this->options, $options);
     }
     
     /**
      * @inheritDoc
      */
-    public function get(string $path = null, $default = null, string $separator = '.')
+    public function get(string $path = null, $default = null)
     {
         $found = $this->data;
+        $separator = (string) $this->options['pathSeparator'];
         
         if ($path === null || $path === '') {
             return $found;
@@ -70,6 +85,26 @@ class Configuration implements ConfigurationInterface
         }
         
         return $found;
+    }
+    
+    /**
+     * @inheritDoc
+     */
+    public function set(string $path, $value): self
+    {
+        if (!!$this->options['readOnly']) {
+            throw new ConfigurationException(
+                'Configuration is read-only. No modifications possible'
+            );
+        }
+        Arr::set(
+            $this->data,
+            $path,
+            $value,
+            (string) $this->options['pathSeparator']
+        );
+        
+        return $this;
     }
     
     /**

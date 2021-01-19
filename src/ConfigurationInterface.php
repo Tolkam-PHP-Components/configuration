@@ -7,13 +7,22 @@ use IteratorAggregate;
 interface ConfigurationInterface extends IteratorAggregate
 {
     /**
+     * Sets value by path
+     *
+     * @param string $path
+     * @param        $value
+     *
+     * @return $this
+     */
+    public function set(string $path, $value): self;
+    
+    /**
      * Gets value by path
      *
      * @param string $path
      * @param null   $default
-     * @param string $separator
      *
      * @return mixed
      */
-    public function get(string $path, $default = null, string $separator = '.');
+    public function get(string $path, $default = null);
 }
