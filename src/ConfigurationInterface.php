@@ -19,10 +19,10 @@ interface ConfigurationInterface extends IteratorAggregate
     /**
      * Gets value by path
      *
-     * @param string $path
-     * @param null   $default
+     * @param string|null $path
+     * @param null        $default
      *
      * @return mixed
      */
-    public function get(string $path, $default = null);
+    public function get(string $path = null, $default = null);
 }
