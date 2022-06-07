@@ -15,7 +15,7 @@ interface ConfigurationInterface extends IteratorAggregate
      * @return $this
      */
     public function set(string $path, $value): self;
-    
+
     /**
      * Gets value by path
      *
